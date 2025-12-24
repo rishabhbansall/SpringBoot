@@ -3,6 +3,7 @@ package com.example.employeemanagement.services;
 import com.example.employeemanagement.dto.EmployeeRequestDTO;
 import com.example.employeemanagement.dto.EmployeeResponseDTO;
 import com.example.employeemanagement.entity.EmployeeGS;
+import com.example.employeemanagement.exception.EmployeeNotFoundException;
 import com.example.employeemanagement.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class EmployeeService {
     @Autowired
     private EmployeeRepository repository;
@@ -20,6 +20,7 @@ public class EmployeeService {
 
 
 //  Adding Employee
+    @Transactional
     public EmployeeResponseDTO addEmployee(EmployeeRequestDTO dto){
         EmployeeGS emp=new EmployeeGS();
         emp.setName(dto.getName());
@@ -35,9 +36,10 @@ public class EmployeeService {
 
 
 //    Update Employee
+    @Transactional
     public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto){
         EmployeeGS emp=repository.findById(id)
-                               .orElseThrow(()-> new RuntimeException("Employee not found"));
+                               .orElseThrow(()-> new EmployeeNotFoundException(id));
         emp.setName(dto.getName());
         emp.setDescription(dto.getDescription());
         emp.setSalary(dto.getSalary());
@@ -51,20 +53,26 @@ public class EmployeeService {
 
 
 //    Delete Employee
+    @Transactional
     public void deleteEmployee(Long id){
+        if (!repository.existsById(id)) {
+            throw new EmployeeNotFoundException(id);
+        }
         repository.deleteById(id);
     }
 
 
 //    Get Employee
+    @Transactional(readOnly = true)
     public EmployeeResponseDTO getEmployee(Long id){
         EmployeeGS emp=repository.findById(id)
-                               .orElseThrow(()-> new RuntimeException("Employee not found"));
+                               .orElseThrow(()-> new EmployeeNotFoundException(id));
         return mapToDTO(emp);
     }
 
 
 //    Get All Employees
+    @Transactional(readOnly = true)
     public List<EmployeeResponseDTO> getAllEmployees(){
         return repository.findAll().stream()
                 .map(this::mapToDTO)

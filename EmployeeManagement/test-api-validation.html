@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management API Test with Validation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 0;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important; }
+        .danger { background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%) !important; }
+        .warning { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%) !important; }
+
+        #output {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-200 { background: #38ef7d; color: #000; }
+        .status-201 { background: #4facfe; color: #fff; }
+        .status-400 { background: #ff6a00; color: #fff; }
+        .status-404 { background: #ee0979; color: #fff; }
+        .status-500 { background: #434343; color: #fff; }
+
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+        .info-box h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .validation-list {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .validation-list li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Employee Management API Test Suite</h1>
+
+        <div class="info-box">
+            <h3>✨ New Features Implemented:</h3>
+            <ul>
+                <li><strong>Transactional Annotations:</strong> All operations are now atomic</li>
+                <li><strong>Jakarta Validation:</strong> Email and name validation enabled</li>
+                <li><strong>Response Entity:</strong> Proper HTTP status codes (201, 200, 404, 400, 500)</li>
+                <li><strong>Global Exception Handler:</strong> Structured error responses</li>
+            </ul>
+        </div>
+
+        <div class="validation-list">
+            <h3>📋 Validation Rules:</h3>
+            <ul>
+                <li><strong>Name:</strong> Required, 2-100 characters, letters and spaces only</li>
+                <li><strong>Email:</strong> Required, valid email format</li>
+                <li><strong>Salary:</strong> Must be greater than 0</li>
+                <li><strong>Description:</strong> Max 500 characters</li>
+                <li><strong>Gender & Status:</strong> Required enum values</li>
+            </ul>
+        </div>
+
+        <!-- CRUD Operations -->
+        <div class="section">
+            <h2>✅ Valid Operations (Should Succeed)</h2>
+            <div class="button-group">
+                <button class="success" onclick="createValidEmployee()">
+                    Create Valid Employee (201)
+                </button>
+                <button onclick="getAllEmployees()">
+                    Get All Employees (200)
+                </button>
+                <button onclick="getEmployeeById()">
+                    Get Employee by ID (200)
+                </button>
+                <button onclick="updateEmployee()">
+                    Update Employee (200)
+                </button>
+            </div>
+        </div>
+
+        <!-- Validation Tests -->
+        <div class="section">
+            <h2>❌ Validation Tests (Should Fail with 400)</h2>
+            <div class="button-group">
+                <button class="warning" onclick="createInvalidName()">
+                    Invalid Name (empty)
+                </button>
+                <button class="warning" onclick="createInvalidEmail()">
+                    Invalid Email Format
+                </button>
+                <button class="warning" onclick="createNegativeSalary()">
+                    Negative Salary
+                </button>
+                <button class="warning" onclick="createNameWithNumbers()">
+                    Name with Numbers
+                </button>
+                <button class="warning" onclick="createMissingFields()">
+                    Missing Required Fields
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Tests -->
+        <div class="section">
+            <h2>🔍 Error Handling Tests</h2>
+            <div class="button-group">
+                <button class="danger" onclick="getNonExistentEmployee()">
+                    Get Non-Existent (404)
+                </button>
+                <button class="danger" onclick="updateNonExistent()">
+                    Update Non-Existent (404)
+                </button>
+                <button class="danger" onclick="deleteNonExistent()">
+                    Delete Non-Existent (404)
+                </button>
+                <button class="danger" onclick="deleteEmployee()">
+                    Delete Employee (200)
+                </button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📊 Response Output:</h2>
+            <div id="output">Ready to test API endpoints...</div>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = 'http://localhost:8080/employees';
+        let lastCreatedId = null;
+
+        function displayOutput(method, url, status, data, error = null) {
+            const output = document.getElementById('output');
+            const timestamp = new Date().toLocaleTimeString();
+            const statusBadge = `<span class="status-badge status-${status}">${status}</span>`;
+
+            let content = `\n${'='.repeat(80)}\n`;
+            content += `⏰ ${timestamp} | ${method} ${url} ${statusBadge}\n`;
+            content += `${'='.repeat(80)}\n\n`;
+
+            if (error) {
+                content += `❌ ERROR:\n${JSON.stringify(error, null, 2)}\n`;
+            } else {
+                content += `✅ RESPONSE:\n${JSON.stringify(data, null, 2)}\n`;
+            }
+
+            output.textContent += content;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function apiCall(method, url, body = null) {
+            try {
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(url, options);
+                const data = response.status === 204 ? null : await response.json();
+
+                displayOutput(method, url, response.status, data);
+                return { status: response.status, data };
+            } catch (error) {
+                displayOutput(method, url, 'ERROR', null, error.message);
+                throw error;
+            }
+        }
+
+        // Valid Operations
+        async function createValidEmployee() {
+            const employee = {
+                name: "John Doe",
+                description: "Senior Software Engineer",
+                salary: 75000,
+                email: "john.doe@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            const result = await apiCall('POST', baseURL, employee);
+            if (result.data && result.data.id) {
+                lastCreatedId = result.data.id;
+            }
+        }
+
+        async function getAllEmployees() {
+            await apiCall('GET', baseURL);
+        }
+
+        async function getEmployeeById() {
+            const id = lastCreatedId || 1;
+            await apiCall('GET', `${baseURL}/${id}`);
+        }
+
+        async function updateEmployee() {
+            const id = lastCreatedId || 1;
+            const employee = {
+                name: "John Doe Updated",
+                description: "Lead Software Engineer",
+                salary: 85000,
+                email: "john.doe@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            await apiCall('PUT', `${baseURL}/${id}`, employee);
+        }
+
+        async function deleteEmployee() {
+            const id = lastCreatedId || 1;
+            await apiCall('DELETE', `${baseURL}/${id}`);
+        }
+
+        // Validation Tests
+        async function createInvalidName() {
+            const employee = {
+                name: "",
+                description: "Test",
+                salary: 50000,
+                email: "test@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            await apiCall('POST', baseURL, employee);
+        }
+
+        async function createInvalidEmail() {
+            const employee = {
+                name: "Jane Doe",
+                description: "Product Manager",
+                salary: 65000,
+                email: "invalid-email",
+                gender: "FEMALE",
+                status: "ACTIVE"
+            };
+            await apiCall('POST', baseURL, employee);
+        }
+
+        async function createNegativeSalary() {
+            const employee = {
+                name: "Bob Smith",
+                description: "Intern",
+                salary: -1000,
+                email: "bob@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            await apiCall('POST', baseURL, employee);
+        }
+
+        async function createNameWithNumbers() {
+            const employee = {
+                name: "John123",
+                description: "Developer",
+                salary: 70000,
+                email: "john123@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            await apiCall('POST', baseURL, employee);
+        }
+
+        async function createMissingFields() {
+            const employee = {
+                description: "Missing required fields"
+            };
+            await apiCall('POST', baseURL, employee);
+        }
+
+        // Error Tests
+        async function getNonExistentEmployee() {
+            await apiCall('GET', `${baseURL}/99999`);
+        }
+
+        async function updateNonExistent() {
+            const employee = {
+                name: "Non Existent",
+                description: "Test",
+                salary: 50000,
+                email: "test@example.com",
+                gender: "MALE",
+                status: "ACTIVE"
+            };
+            await apiCall('PUT', `${baseURL}/99999`, employee);
+        }
+
+        async function deleteNonExistent() {
+            await apiCall('DELETE', `${baseURL}/99999`);
+        }
+    </script>
+</body>
+</html>
+
