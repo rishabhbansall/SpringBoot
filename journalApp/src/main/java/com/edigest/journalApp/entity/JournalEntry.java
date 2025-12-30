@@ -1,24 +1,33 @@
 package com.edigest.journalApp.entity;
 
-public class JournalEntry {
-    private long id;
-    private String tittle;
-    private String content;
+import java.time.LocalDateTime;
 
-    public long getId() {
+public class JournalEntry {
+
+    private Long id;
+    private String title;
+    private String content;
+    private LocalDateTime date;
+    private String username;  // Associated user's username
+
+    public JournalEntry() {
+        this.date = LocalDateTime.now();
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getTittle() {
-        return tittle;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContent() {
@@ -29,5 +38,20 @@ public class JournalEntry {
         this.content = content;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 }
 
