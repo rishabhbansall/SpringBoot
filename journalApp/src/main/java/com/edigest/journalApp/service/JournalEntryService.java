@@ -33,7 +33,6 @@ public class JournalEntryService {
         System.out.println("Saved entry with ID: " + entry.getId() + ", Title: " + entry.getTitle());
         return entry;
     }
-    }
 
     // Find journal entry by ID
     public Optional<JournalEntry> findById(Long id) {

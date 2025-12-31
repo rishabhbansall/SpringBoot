@@ -47,8 +47,10 @@ public class JournalEntryController {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String userName = authentication.getName();
 
-            // Set username from authenticated user
-            entry.setUsername(userName);
+            // Set username from authenticated user only if not provided
+            if (entry.getUsername() == null || entry.getUsername().isEmpty()) {
+                entry.setUsername(userName);
+            }
 
             // Save entry (this will auto-generate ID if null)
             JournalEntry savedEntry = journalEntryService.saveEntry(entry);
@@ -90,7 +92,7 @@ public class JournalEntryController {
     }
 
     // Get journal entries by username
-    @GetMapping("/user/{username}")
+    @GetMapping("/{username}")
     public ResponseEntity<List<JournalEntry>> getJournalEntriesByUsername(@PathVariable String username) {
         User user = userService.findByUsername(username).orElse(null);
         if (user != null && user.getJournalEntries() != null && !user.getJournalEntries().isEmpty()) {
@@ -135,6 +137,7 @@ public class JournalEntryController {
                     JournalEntry old = journalEntry.get();
                     old.setTitle(newEntry.getTitle() != null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : old.getTitle());
                     old.setContent(newEntry.getContent() != null && !newEntry.getContent().equals("") ? newEntry.getContent() : old.getContent());
+                    old.setUsername(newEntry.getUsername() != null && !newEntry.getUsername().equals("") ? newEntry.getUsername() : old.getUsername());
                     journalEntryService.saveEntry(old);
                     return new ResponseEntity<>(old, HttpStatus.OK);
                 }
